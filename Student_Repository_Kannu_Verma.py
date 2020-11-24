@@ -4,6 +4,7 @@ from typing import DefaultDict
 from HW08_Kannu_Verma import file_reader
 from prettytable import PrettyTable
 import os
+import sqlite3
 
 """" Holds all the information of Students, Instructors, grades of a University """
 class University:
@@ -14,10 +15,11 @@ class University:
         self.grades = list()
         self.major_req_courses = DefaultDict(list)
         self.major_elective_courses = DefaultDict(list)
+        self.students_grades = list()
 
     # read student's file and save all data of student
     def read_students_file(self, path):
-        for cwid, name, major in list(file_reader(path, 3, ';', True)):
+        for cwid, name, major in list(file_reader(path, 3, '\t', True)):
             if cwid not in self.students:
                 self.students[cwid] = Student(cwid, name, major)
             else:
@@ -25,12 +27,12 @@ class University:
 
     # read student's file and save all data of instructor
     def read_instructors_file(self, path):
-        for cwid, name, dept in list(file_reader(path, 3, '|', True)):
+        for cwid, name, dept in list(file_reader(path, 3, '\t', True)):
             self.instructors[cwid] = Instructor(cwid, name, dept)
 
     # read student's file and save all data linked with student & Instructor
     def read_grades_file(self, path):
-        for student_cwid, course, grade, instructor_cwid in list(file_reader(path, 4, '|', True)):
+        for student_cwid, course, grade, instructor_cwid in list(file_reader(path, 4, '\t', True)):
             instructor_cwid = instructor_cwid.strip()
             
             #update the courses taken by each student, push course-grade dict for students
@@ -67,6 +69,21 @@ class University:
         for major in self.major_req_courses:
             majors_pretty_table.add_row([major, sorted(list(self.major_req_courses[major])), sorted(list(self.major_elective_courses[major]))])
         print(majors_pretty_table)
+
+    #new pretty table HW#11
+    def student_grades_table_db(self, db_path):
+        conn = sqlite3.connect(db_path)
+        c = conn.cursor()
+        for row in c.execute('select s.name as "Name", s.cwid as "CWID", g.course as "Course", g.grade as "Grade", i.name as "Instructor" from students s, grades g, instructors i where s.cwid=g.student_cwid and g.instructor_cwid=i.cwid order by s.name;'):
+            self.students_grades.append(row)
+        self.student_grades_pretty_table()
+
+
+    def student_grades_pretty_table(self):
+        students_grades_pretty_table:PrettyTable = PrettyTable(field_names=['Name', 'CWID', 'Course', 'Grade', 'Instructor'])
+        for row in self.students_grades:
+            students_grades_pretty_table.add_row([row[0], row[1], row[2], row[3], row[4]])
+        print(students_grades_pretty_table)
 
 
 """ Holds all of the details of a student """
@@ -107,7 +124,7 @@ class Instructor:
 
 """ Main Method """        
 def main():
-    dir_path:str = 'C:\KANNU\Stevens\Fall-2020\SSW-810\Assignment-10\Student-Repository'
+    dir_path:str = 'C:\KANNU\Stevens\Fall-2020\SSW-810\Assignment-11\Student-Repository'
     university = University()
     university.read_majors_file(os.path.join(dir_path, 'majors.txt'))
     university.read_students_file(os.path.join(dir_path, 'students.txt'))
@@ -119,6 +136,8 @@ def main():
     university.print_students()
     print('\nInstructor Summary')
     university.print_instructors()
+    print('\nStudent Grade Summary')
+    university.student_grades_table_db(os.path.join("C:\KANNU\Stevens\Fall-2020\SSW-810\Assignment-11\Student-Repository\810_hw_11.db"))
 
 
 if __name__ == '__main__':

@@ -9,34 +9,40 @@ class UniversityTest(unittest.TestCase):
     # verify contents of majors table
     def test_majors_pretty_table(self) -> None:
         university = University()
-        dir_path:str = 'C:\KANNU\Stevens\Fall-2020\SSW-810\Assignment-10\Student-Repository'
+        dir_path:str = 'C:\KANNU\Stevens\Fall-2020\SSW-810\Assignment-11\Student-Repository'
         university.read_majors_file(os.path.join(dir_path, 'majors.txt'))
-        self.assertEqual(list(university.major_req_courses.keys()), ['SFEN', 'SYEN'])
-        self.assertEqual(list(university.major_req_courses.values()), [['SSW 540', 'SSW 564', 'SSW 555', 'SSW 567'], ['SYS 671', 'SYS 612', 'SYS 800'] ])
-        self.assertEqual(list(university.major_elective_courses.values()),  [['CS 501', 'CS 513', 'CS 545'], ['SSW 810', 'SSW 565', 'SSW 540']])
+        self.assertEqual(list(university.major_req_courses.keys()), ['SFEN', 'CS'])
+        self.assertEqual(list(university.major_req_courses.values()), [['SSW 540', 'SSW 810', 'SSW 555'], ['CS 570', 'CS 546']])
+        self.assertEqual(list(university.major_elective_courses.values()),  [['CS 501', 'CS 546'], ['SSW 810', 'SSW 565']])
 
     # verify contents of Student and Instructor table
     def test_student_instructor_pretty_table(self) -> None:
         university = University()
-        dir_path:str = 'C:\KANNU\Stevens\Fall-2020\SSW-810\Assignment-10\Student-Repository'
+        dir_path:str = 'C:\KANNU\Stevens\Fall-2020\SSW-810\Assignment-11\Student-Repository'
         university.read_students_file(os.path.join(dir_path, 'students.txt'))
         university.read_instructors_file(os.path.join(dir_path, 'instructors.txt'))
         university.read_grades_file(os.path.join(dir_path, 'grades.txt'))
-        self.assertEqual(len(university.students), 10)
-        self.assertEqual(university.students['10103'].name, 'Baldwin, C')
+        self.assertEqual(len(university.students), 4)
+        self.assertEqual(university.students['10103'].name, 'Jobs, S')
         self.assertEqual(university.students['10103'].major, 'SFEN')
-        self.assertEqual(list(university.students['10103'].courseGrade.keys()), ['SSW 567', 'SSW 564', 'SSW 687', 'CS 501'])
+        self.assertEqual(list(university.students['10103'].courseGrade.keys()), ['SSW 810', 'CS 501'])
         
-        self.assertEqual(university.instructors['98764'].name, 'Feynman, R')
+        self.assertEqual(university.instructors['98764'].name, 'Cohen, R')
         self.assertEqual(university.instructors['98764'].cwid, '98764')
         self.assertEqual(university.instructors['98764'].dept, 'SFEN')
-        self.assertEqual(len(university.instructors['98764'].course_student_count), 4)
-        self.assertEqual(university.instructors['98764'].course_student_count['SSW 564'], 3)
-        self.assertEqual(university.instructors['98764'].course_student_count['SSW 687'], 3)
-        self.assertEqual(university.instructors['98764'].course_student_count['CS 501'], 1)
-        self.assertEqual(university.instructors['98764'].course_student_count['CS 545'], 1)
-        
-        
+        self.assertEqual(len(university.instructors['98764'].course_student_count), 1)
+        self.assertEqual(university.instructors['98764'].course_student_count['CS 546'], 1)
+        self.assertEqual(university.instructors['98763'].course_student_count['SSW 810'], 4)
+        self.assertEqual(university.instructors['98763'].course_student_count['SSW 555'], 1)
+        self.assertEqual(university.instructors['98762'].course_student_count['CS 570'], 1)
+
+    #New Test cases
+    def test_student_grades_table_db(self) -> None:
+        university = University()
+        dir_path:str = 'C:\KANNU\Stevens\Fall-2020\SSW-810\Assignment-11\Student-Repository'
+        university.student_grades_table_db(os.path.join(dir_path, '810_hw_11.db'))
+        self.assertEqual(university.students_grades[0], ('Bezos, J', '10115', 'SSW 810', 'A', 'Rowland, J'))
+        self.assertEqual(university.students_grades[1], ('Bezos, J', '10115', 'CS 546', 'F', 'Hawking, S'))
         
         
 # Test cases for General Student information verification

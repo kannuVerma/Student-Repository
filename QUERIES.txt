@@ -1,0 +1,23 @@
+/* Author: Kannu Verma */
+
+
+/*1. What is the name of the student with CWID='10115'*/
+select name from students where CWID='10115';
+
+/*2. What is the total number of students by major? */
+select major, count(*) as "Students" from students group by major;
+
+/*3. What is the most frequent grade for SSW 810 across all students? */
+select grade from grades where course='SSW 810' group by grade order by count(grade) desc limit 1;
+
+/*4. Display the name and cwid of each student along with the total number of courses taken by the student.
+      Hint: You'll need to join the students and grades tables on StudentCWID and CWID. */
+select s.name as "Name", s.cwid as "CWID", count(g.course) "Courses" from students s, grades g where s.cwid=g.student_cwid group by s.cwid;
+
+/*5. Display each student's name,  CWID, course, grade, and the instructor's name  for all students and grades.
+      The result should be sorted by the student's name. Hint: You'll need to join the grades and students tables on
+      StudentCWID and CWID and join the instructors table using the instructor's CWID.
+      E.g. Bezos, J, CWID 10115, earned an 'A' in SSW 810 taught by Rowland.
+*/
+select s.name as "Name", s.cwid as "CWID", g.course as "Course", g.grade as "Grade", i.name as "Instructor" from students s,
+grades g, instructors i where s.cwid=g.student_cwid and g.instructor_cwid=i.cwid order by s.name;
